@@ -1,0 +1,6 @@
+﻿     Creating library E:/Extend/Third/glew-2.0.0/buildVS/lib/Debug/glew32d.lib and object E:/Extend/Third/glew-2.0.0/buildVS/lib/Debug/glew32d.exp
+glew.obj : error LNK2019: unresolved external symbol @_RTC_CheckStackVars@8 referenced in function _glewIsSupported@4
+glew.obj : error LNK2019: unresolved external symbol __RTC_CheckEsp referenced in function _glewInit@0
+glew.obj : error LNK2001: unresolved external symbol __RTC_InitBase
+glew.obj : error LNK2001: unresolved external symbol __RTC_Shutdown
+E:\Extend\Third\glew-2.0.0\buildVS\bin\Debug\glew32d.dll : fatal error LNK1120: 4 unresolved externals

@@ -1,0 +1,40 @@
+# CMake generation dependency list for this directory.
+E:/project/Test/OpenGL/glfw-3.2.1/CMakeLists.txt
+E:/project/Test/OpenGL/glfw-3.2.1/build/CMakeFiles/3.7.0-rc1/CMakeSystem.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeSystemSpecificInitialize.cmake
+E:/project/Test/OpenGL/glfw-3.2.1/build/CMakeFiles/3.7.0-rc1/CMakeCCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeSystemSpecificInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeGenericSystem.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/WindowsPaths.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeLanguageInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC-C.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC.cmake
+E:/project/Test/OpenGL/glfw-3.2.1/build/CMakeFiles/3.7.0-rc1/CMakeRCCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeRCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCommonLanguageInclude.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindThreads.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CheckLibraryExists.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CheckSymbolExists.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CheckIncludeFile.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageHandleStandardArgs.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageMessage.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+E:/project/Test/OpenGL/glfw-3.2.1/CMake/modules/FindVulkan.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageHandleStandardArgs.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageMessage.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindDoxygen.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageHandleStandardArgs.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageMessage.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakePackageConfigHelpers.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/WriteBasicConfigVersionFile.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+E:/project/Test/OpenGL/glfw-3.2.1/src/glfw3Config.cmake.in
+D:/Program Files/CMake/share/cmake-3.7/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+E:/project/Test/OpenGL/glfw-3.2.1/src/glfw_config.h.in
+E:/project/Test/OpenGL/glfw-3.2.1/src/glfw3.pc.in
+E:/project/Test/OpenGL/glfw-3.2.1/cmake_uninstall.cmake.in

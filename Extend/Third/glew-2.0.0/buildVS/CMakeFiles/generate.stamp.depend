@@ -1,0 +1,30 @@
+# CMake generation dependency list for this directory.
+E:/Extend/Third/glew-2.0.0/build/cmake/CMakeLists.txt
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/3.7.0-rc1/CMakeSystem.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeSystemSpecificInitialize.cmake
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/3.7.0-rc1/CMakeCCompiler.cmake
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/3.7.0-rc1/CMakeCXXCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeSystemSpecificInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeGenericSystem.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/WindowsPaths.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeLanguageInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC-C.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC.cmake
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/3.7.0-rc1/CMakeRCCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeRCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCommonLanguageInclude.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCXXInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeLanguageInformation.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Compiler/MSVC-CXX.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC-CXX.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/Platform/Windows-MSVC.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeCommonLanguageInclude.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/GNUInstallDirs.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindOpenGL.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageHandleStandardArgs.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindPackageMessage.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/CMakeParseArguments.cmake
+D:/Program Files/CMake/share/cmake-3.7/Modules/FindX11.cmake
+E:/Extend/Third/glew-2.0.0/build/cmake/../../glew.pc.in

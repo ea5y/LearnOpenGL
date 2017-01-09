@@ -1,0 +1,7 @@
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/glew.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/glew_s.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/INSTALL.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/glewinfo.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/visualinfo.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/ALL_BUILD.dir
+E:/Extend/Third/glew-2.0.0/buildVS/CMakeFiles/ZERO_CHECK.dir
