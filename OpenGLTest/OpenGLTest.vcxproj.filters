@@ -13,10 +13,47 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{cd039c58-4636-4c03-9382-1903641514f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{ced97308-f85a-43fa-913e-162e86647227}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawStart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader1.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader1.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader2.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader2.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
