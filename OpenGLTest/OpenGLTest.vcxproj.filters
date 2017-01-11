@@ -55,5 +55,14 @@
     <None Include="shader2.fs">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="shader2-1.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader2-1.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader3.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

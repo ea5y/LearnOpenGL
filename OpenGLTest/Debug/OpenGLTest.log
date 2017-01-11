@@ -1,8 +1,4 @@
 ﻿  Main.cpp
-e:\project\test\opengl\learnopengl\opengltest\main.cpp(196): warning C4018: '<': signed/unsigned mismatch
-e:\project\test\opengl\learnopengl\opengltest\main.cpp(256): warning C4018: '<': signed/unsigned mismatch
-e:\project\test\opengl\learnopengl\opengltest\main.cpp(304): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-e:\project\test\opengl\learnopengl\opengltest\main.cpp(305): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-e:\project\test\opengl\learnopengl\opengltest\main.cpp(612): warning C4018: '<': signed/unsigned mismatch
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(402): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
   OpenGLTest.vcxproj -> E:\project\Test\OpenGL\LearnOpenGL\Debug\OpenGLTest.exe
   OpenGLTest.vcxproj -> E:\project\Test\OpenGL\LearnOpenGL\Debug\OpenGLTest.pdb (Full PDB)
