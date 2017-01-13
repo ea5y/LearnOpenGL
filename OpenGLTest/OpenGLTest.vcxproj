@@ -153,6 +153,7 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawStart.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <None Include="shader2-1.vs" />
     <None Include="shader2.fs" />
     <None Include="shader2.vs" />
+    <None Include="shader3.fs" />
     <None Include="shader3.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

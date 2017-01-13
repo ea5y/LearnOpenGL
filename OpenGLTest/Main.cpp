@@ -1,6 +1,7 @@
 
 #include <iostream>
-#include <vector>
+#include <sstream>
+
 
 /*GLEW
 / use static lib and reference before others
@@ -22,32 +23,44 @@
 //Shader
 #include "Shader.h"
 #include "DrawStart.h"
+#include "Camera.h"
 
 using namespace std;
 
+const GLuint WIDTH = 1280, HEIGHT = 720;
 
-float mixValue = 0.4f;
+Camera *_camera;
 
-//Function prototypes
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	// Change value of uniform with arrow keys (sets amount of textre mix)
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-	{
-		mixValue += 0.1f;
-		if (mixValue >= 1.0f)
-			mixValue = 1.0f;
-	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-	{
-		mixValue -= 0.1f;
-		if (mixValue <= 0.0f)
-			mixValue = 0.0f;
-	}
-}
+float mixValue = 45.0f;
 
+float FoV = 45.0f;
+float AspectRatio = (float)WIDTH / HEIGHT;
+double Aspect = 45.0f;
+
+GLfloat DELTA_TIME = 0.0f;
+GLfloat LAST_FRAME = 0.0f;
+
+//GLfloat PITCH = 0.0f;
+//GLfloat YAW = -90.0f;
+
+GLfloat lastX = 640, lastY = 360;
+
+string IMAGE[] = { "Resource/img/muban.jpg" , "Resource/img/mao.jpg" };
+bool KEYS[1024];
+
+//View matrix
+glm::mat4 VIEW_MATRIX;
+glm::vec3 CAMERA_POS;
+glm::vec3 CAMERA_FRONT;
+glm::vec3 CAMERA_UP;
+
+bool FIRST_MOUSE = true;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
+void scroll_callback(GLFWwindow *window, double xOffset, double yOffset);
 
 void InitGF()
 {
@@ -64,7 +77,7 @@ void SetGFRequired()
 
 GLFWwindow* CreateGFwindowObj()
 {
-	GLFWwindow * window = glfwCreateWindow(1280, 720, "LearnOpenGL", nullptr, nullptr);
+	GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	return window;
 }
@@ -91,6 +104,18 @@ void SetKeyCallback(GLFWwindow *window)
 	glfwSetKeyCallback(window, key_callback);
 }
 
+void SetMouseCallback(GLFWwindow *window, Camera *camera)
+{
+	//if(camera != nullptr)
+	
+	glfwSetCursorPosCallback(window, mouse_callback);
+}
+
+void SetScrollCallback(GLFWwindow *window, Camera *camera)
+{
+	glfwSetScrollCallback(window, scroll_callback);
+}
+
 void Ready(GLFWwindow* &window)
 {
 	InitGF();
@@ -99,10 +124,36 @@ void Ready(GLFWwindow* &window)
 	window = CreateGFwindowObj();
 
 	InitGE();
-
+	//camera = new Camera()
 	DefineViewPort(window);
 
+	//Event
 	SetKeyCallback(window);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void OnKeyPress(Camera *camera)
+{
+	/*GLfloat cameraSpeed = 5.0f * DELTA_TIME;
+	if (KEYS[GLFW_KEY_W])
+		CAMERA_POS += cameraSpeed * CAMERA_FRONT;
+	if (KEYS[GLFW_KEY_S])
+		CAMERA_POS -= cameraSpeed * CAMERA_FRONT;
+	if (KEYS[GLFW_KEY_A])
+		CAMERA_POS -= glm::normalize(glm::cross(CAMERA_FRONT, CAMERA_UP)) * cameraSpeed;
+	if (KEYS[GLFW_KEY_D])
+		CAMERA_POS += glm::normalize(glm::cross(CAMERA_FRONT, CAMERA_UP)) * cameraSpeed;*/
+
+	if (KEYS[GLFW_KEY_W])
+		camera->ProcessKeyboard(FORWARD, DELTA_TIME);
+	if (KEYS[GLFW_KEY_S])
+		camera->ProcessKeyboard(BACKWARD, DELTA_TIME);
+	if (KEYS[GLFW_KEY_A])
+		camera->ProcessKeyboard(LEFT, DELTA_TIME);
+	if (KEYS[GLFW_KEY_D])
+		camera->ProcessKeyboard(RIGHT, DELTA_TIME);
 }
 
 template<typename Func>
@@ -123,6 +174,31 @@ void InputVertexInfo(GLuint *VAO, Func func)
 }
 
 template<typename Func>
+void Draw(GLFWwindow *window, Camera *camera, Func func)
+{
+	//Loop
+	while (!glfwWindowShouldClose(window))
+	{
+		//Check if any events
+		glfwPollEvents();
+
+		//Key Events
+		OnKeyPress(camera);
+
+		//Clear
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		//Custom
+		func();
+
+		//Swap the screen buffers
+		glfwSwapBuffers(window);
+	}
+}
+
+template<typename Func>
 void Draw(GLFWwindow *window, Func func)
 {
 	//Loop
@@ -131,9 +207,13 @@ void Draw(GLFWwindow *window, Func func)
 		//Check if any events
 		glfwPollEvents();
 
+		//Key Events
+		//OnKeyPress(camera);
+
 		//Clear
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		//Custom
 		func();
@@ -357,17 +437,7 @@ void Lesson9(GLFWwindow *window)
 		glEnableVertexAttribArray(2);
 	});
 
-	//Model matrix
-	glm::mat4 model;
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	//View matrix
-	glm::mat4 view;
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-	//Projection matrix
-	glm::mat4 projection;
-	projection = glm::perspective(45.0f, (float)1280 / 720, 0.1f, 100.0f);
+	
 
 	//matrix transform order
 	// * translate * rotate * scale === scale -> rotate -> translate
@@ -415,15 +485,574 @@ void Lesson9(GLFWwindow *window)
 //============================================
 //Enter 3D, use model,view,projection matrix
 //============================================
-void Lesson10() 
+void Lesson10(GLFWwindow *window)
 {
+	cout << "Lesson10:" << endl;
+	cout << "Create Shader..." << endl;
+	Shader shader("shader3.vs", "shader3.fs");
+
+	string imageName1 = "Resource/img/muban.jpg";
+	string imageName2 = "Resource/img/mao.jpg";
+
+	GLfloat vertexs[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	glm::vec3 cubePositions[] = {
+
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+
+	};
+
+	GLint indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	GLuint VAO, VBO, EBO;
+	GLuint TT[2];
+
+	cout << "Input vertexInfo..." << endl;
+	InputVertexInfo(&VAO, [&]() {
+		//VBO
+		//======
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+
+		//EBO
+		//======
+		//glGenBuffers(1, &EBO);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		//Texture
+		//=============
+		int width, height;
+		for (int i = 0; i < 2; i++)
+		{
+			unsigned char* image = SOIL_load_image(IMAGE[i].c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+			//TT
+			glGenTextures(1, &TT[i]);
+			//Pointer texture target!!!!
+			glBindTexture(GL_TEXTURE_2D, TT[i]);
+			//Set wrapping
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+			//Set filter
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			//Generate
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			//Free RAM and Unbind
+			SOIL_free_image_data(image);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		//VertexAttribArray
+		//=======================
+		//Set vertex attribute pointer
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//Set texCoord attibute pointer
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+	});
+
+	//View matrix
+	glm::mat4 view;
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	VIEW_MATRIX = glm::translate(VIEW_MATRIX, glm::vec3(0.0f, 0.0f, -3.0f));
+
+
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
 	
+	Draw(window, [&]() {
+		shader.Use();
+
+		//Matrix
+		//==================
+		//Model matrix
+		//glm::mat4 model;
+		//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		//View matrix
+		GLfloat radius = 10.0f;
+		GLfloat camX = sin(glfwGetTime()) * radius;
+		GLfloat camZ = cos(glfwGetTime()) * radius;
+
+		cameraPos = glm::vec3(camX, 0.0f, camZ);
+		VIEW_MATRIX = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+		//Projection matrix
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(FoV), AspectRatio, 0.1f, 100.0f);
+		
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TT[0]);
+		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture1"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, TT[1]);
+		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture2"), 1);
+
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(VIEW_MATRIX));
+
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindVertexArray(VAO);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		//Draw multi cube with the same vertex and different translate
+		for (GLuint i = 0; i < 10; i++)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = 20.0f * i;
+			if(i % 3 == 0)
+				angle = glm::radians((GLfloat)glfwGetTime() * 20.0f) * (i + 1);
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		glBindVertexArray(0);
+	});
+
+	Clear(&VAO, &VBO, &EBO);
+}
+
+void Lesson11(GLFWwindow *window)
+{
+	cout << "Lesson11:" << endl;
+	//Set Shader
+	cout << "Create Shader..." << endl;
+	Shader shader("shader3.vs", "shader3.fs");
+
+	//Vertex
+	GLfloat vertexs[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	glm::vec3 cubePositions[] = {
+
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+
+	};
+
+	//Input vertex
+	cout << "Input vertexInfo" << endl;
+	GLuint VAO, VBO, TT[2];
+	InputVertexInfo(&VAO, [&]() {
+		//=======
+		//VBO	
+		//=======
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+
+		//========
+		//TT
+		//========
+		int width, height;
+		for (int i = 0; i < 2; i++)
+		{
+			//create texture ID
+			glGenTextures(1, &TT[i]);
+			glBindTexture(GL_TEXTURE_2D, TT[i]);
+			//set wrapping
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+			//set filter
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			//load img
+			unsigned char* image = SOIL_load_image(IMAGE[i].c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+			//generate
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			//free
+			SOIL_free_image_data(image);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		
+		//========================
+		//VertexAttributeArray
+		//========================
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//texCoord
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+	});
+
+	CAMERA_POS = glm::vec3(0.0f, 0.0f, 3.0f);
+	CAMERA_FRONT = glm::vec3(0.0f, 0.0f, -1.0f);
+	CAMERA_UP = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	
+	//Draw
+	cout << "Draw Start..." << endl;
+	Draw(window, [&]() {
+		//Set DeltaTime
+		GLfloat currentFrame = glfwGetTime();
+		DELTA_TIME = currentFrame - LAST_FRAME;
+		LAST_FRAME = currentFrame;
+		
+		//Use program
+		shader.Use();
+		
+		//Bind TT
+		for (GLint i = 0; i < 2; i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, TT[i]);
+			stringstream ourTexture;
+			ourTexture << "ourTexture" << i + 1;
+			//string ourTexture = "ourTexture" + (i + 1) ;
+			glUniform1i(glGetUniformLocation(shader.Program, ourTexture.str().c_str()), i);
+		}
+
+		//Model matrix
+
+		//View matrix
+		
+		VIEW_MATRIX = glm::lookAt(CAMERA_POS, CAMERA_POS + CAMERA_FRONT, CAMERA_UP);
+		//Projection matrix
+		glm::mat4 projection = glm::perspective(glm::radians((GLfloat)Aspect), AspectRatio, 0.1f, 100.0f);
+
+
+		//Send uniform
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(VIEW_MATRIX));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		//Bind VAO
+		glBindVertexArray(VAO);
+
+		//Draw
+		for (int i = 0; i < 10; i++)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = 20.0f * i;
+			if (i % 3 == 0)
+				angle = glm::radians((GLfloat)glfwGetTime() * 20.0f) * (i + 1);
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		//UnBind VAO
+		glBindVertexArray(0);
+	});
+	cout << "Draw end..." << endl;
+
+
+	//Clear
+	cout << "Clear..." << endl;
+	Clear(&VAO, &VBO, nullptr);
+}
+
+void Lesson12(GLFWwindow *window, Camera *camera)
+{
+	cout << "Lesson11:" << endl;
+	//Set Shader
+	cout << "Create Shader..." << endl;
+	Shader shader("shader3.vs", "shader3.fs");
+
+	//Vertex
+	GLfloat vertexs[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	glm::vec3 cubePositions[] = {
+
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+
+	};
+
+	//Input vertex
+	cout << "Input vertexInfo" << endl;
+	GLuint VAO, VBO, TT[2];
+	InputVertexInfo(&VAO, [&]() {
+		//=======
+		//VBO	
+		//=======
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+
+		//========
+		//TT
+		//========
+		int width, height;
+		for (int i = 0; i < 2; i++)
+		{
+			//create texture ID
+			glGenTextures(1, &TT[i]);
+			glBindTexture(GL_TEXTURE_2D, TT[i]);
+			//set wrapping
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+			//set filter
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			//load img
+			unsigned char* image = SOIL_load_image(IMAGE[i].c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+			//generate
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			//free
+			SOIL_free_image_data(image);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+
+		//========================
+		//VertexAttributeArray
+		//========================
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//texCoord
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+	});
+
+	//Draw
+	cout << "Draw Start..." << endl;
+	Draw(window, _camera, [&]() {
+		//Set DeltaTime
+		GLfloat currentFrame = glfwGetTime();
+		DELTA_TIME = currentFrame - LAST_FRAME;
+		LAST_FRAME = currentFrame;
+
+		//Use program
+		shader.Use();
+
+		//Bind TT
+		for (GLint i = 0; i < 2; i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, TT[i]);
+			stringstream ourTexture;
+			ourTexture << "ourTexture" << i + 1;
+			//string ourTexture = "ourTexture" + (i + 1) ;
+			glUniform1i(glGetUniformLocation(shader.Program, ourTexture.str().c_str()), i);
+		}
+
+		//Model matrix
+
+		//View matrix
+
+		VIEW_MATRIX = camera->GetViewMatrix();
+		//Projection matrix
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), AspectRatio, 0.1f, 100.0f);
+
+
+		//Send uniform
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(VIEW_MATRIX));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		//Bind VAO
+		glBindVertexArray(VAO);
+
+		//Draw
+		for (int i = 0; i < 10; i++)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = 20.0f * i;
+			if (i % 3 == 0)
+				angle = glm::radians((GLfloat)glfwGetTime() * 20.0f) * (i + 1);
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		//UnBind VAO
+		glBindVertexArray(0);
+	});
+	cout << "Draw end..." << endl;
+
+
+	//Clear
+	cout << "Clear..." << endl;
+	Clear(&VAO, &VBO, nullptr);
+}
+
+void SetCamera(Camera* &camera, GLFWwindow *window)
+{
+	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+	SetMouseCallback(window, camera);
+	SetScrollCallback(window, camera);
 }
 
 int main()
 {
 	GLFWwindow* window;
 	Ready(window);
+
+	SetCamera(_camera, window);
 
 	//1
 	//Lesson1(window);
@@ -450,10 +1079,88 @@ int main()
 	//Lesson8(window);
 
 	//9
-	Lesson9(window);
+	//Lesson9(window);
 
+	//10
+	//Lesson10(window);
+
+	//11
+	//Lesson11(window);
 	
+	//12
+	Lesson12(window, _camera);
 
 	return 0;
 }
 
+//Function prototypes
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	// Change value of uniform with arrow keys (sets amount of textre mix)
+	if (key == GLFW_KEY_RIGHT)
+	{
+		/*AspectRatio += 0.1f;
+		//if (mixValue >= 1.0f)
+		//	mixValue = 1.0f;
+		cout << "AspectRatio: " << AspectRatio << endl;*/
+		VIEW_MATRIX = glm::translate(VIEW_MATRIX, glm::vec3(-1.0f, 0.0f, 0.0f));
+	}
+	if (key == GLFW_KEY_LEFT)
+	{
+		/*AspectRatio -= 0.1f;
+		//if (mixValue <= 0.0f)
+		//	mixValue = 0.0f;
+		cout << "AspectRatio: " << AspectRatio << endl;*/
+		VIEW_MATRIX = glm::translate(VIEW_MATRIX, glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+
+	if (key == GLFW_KEY_UP)
+	{
+		FoV += 1.0f;
+		//if (mixValue >= 1.0f)
+		//	mixValue = 1.0f;
+		cout << "FoV: " << FoV << endl;
+	}
+	if (key == GLFW_KEY_DOWN)
+	{
+		FoV -= 1.0f;
+		//if (mixValue <= 0.0f)
+		//	mixValue = 0.0f;
+		cout << "FoV: " << FoV << endl;
+	}
+
+	if (action == GLFW_PRESS)
+		KEYS[key] = true;
+	else if (action == GLFW_RELEASE)
+		KEYS[key] = false;
+
+}
+
+void mouse_callback(GLFWwindow *window, double xPos, double yPos)
+{
+	if (FIRST_MOUSE)
+	{
+		lastX = xPos;
+		lastY = yPos;
+		FIRST_MOUSE = false;
+	}
+
+	GLfloat xOffset = xPos - lastX;
+	GLfloat yOffset = yPos - lastY;
+
+	lastX = xPos;
+	lastY = yPos;
+
+	xOffset *= _camera->MouseSensitivity;
+	yOffset *= _camera->MouseSensitivity;
+
+	_camera->ProcessMouseMovement(xOffset, yOffset, true);
+	
+}
+
+void scroll_callback(GLFWwindow *window, double xOffset, double yOffset)
+{
+	_camera->ProcessMouseScroll(yOffset);
+}
