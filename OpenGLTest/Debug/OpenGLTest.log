@@ -1,13 +1,19 @@
 ﻿  Main.cpp
-c:\work\project\learnopengl\opengltest\main.cpp(334): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(432): warning C4018: '<': signed/unsigned mismatch
-c:\work\project\learnopengl\opengltest\main.cpp(534): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(646): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(647): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(651): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(652): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(654): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(655): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\learnopengl\opengltest\main.cpp(666): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-  OpenGLTest.vcxproj -> C:\Work\Project\LearnOpenGL\Debug\OpenGLTest.exe
-  OpenGLTest.vcxproj -> C:\Work\Project\LearnOpenGL\Debug\OpenGLTest.pdb (Full PDB)
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(334): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(496): warning C4018: '<': signed/unsigned mismatch
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(589): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(590): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(591): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(640): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(641): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(642): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(674): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(866): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(867): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(871): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(872): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(874): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(875): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+e:\project\test\opengl\learnopengl\opengltest\main.cpp(886): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  OpenGLTest.vcxproj -> E:\project\Test\OpenGL\LearnOpenGL\Debug\OpenGLTest.exe
+  OpenGLTest.vcxproj -> E:\project\Test\OpenGL\LearnOpenGL\Debug\OpenGLTest.pdb (Full PDB)
