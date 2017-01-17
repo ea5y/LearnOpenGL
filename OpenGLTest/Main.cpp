@@ -440,6 +440,24 @@ void CreateVAO(GLuint* VAO, GLuint* VBO, GLfloat vertexs[], int vertexNum)
 	glBindVertexArray(0);
 }
 
+template<typename Func>
+void CreateVAO(GLuint* VAO, GLuint* VBO, GLfloat vertexs[], int elemNum, Func func)
+{
+	//VAO
+	glGenVertexArrays(1, VAO);
+	glBindVertexArray(*VAO);
+
+	//VBO
+	glGenBuffers(1, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+	glBufferData(GL_ARRAY_BUFFER, elemNum * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
+
+	func();
+
+	//Unbind
+	glBindVertexArray(0);
+}
+
 void CreateTexture(GLuint* texture, string imageName)
 {
 	int width, height;
@@ -453,7 +471,7 @@ void CreateTexture(GLuint* texture, string imageName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//load img
-	unsigned char* image = SOIL_load_image("Resource/img/muban2.png", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image = SOIL_load_image(imageName.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
 	//generate
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -581,7 +599,7 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 	
 	//Material attribute
 	//glUniform3f(glGetUniformLocation(shader->Program, "material.ambient"), 0.0f, 0.1f, 0.06f);
-	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffUse"), 0.0f, 0.50980392f, 0.50980392f);
+	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffuse"), 0.0f, 0.50980392f, 0.50980392f);
 	glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), 0.50196078f, 0.50196078f, 0.50196078f);
 	glUniform1f(glGetUniformLocation(shader->Program, "material.shininess"), 32.0f);
 
@@ -590,15 +608,15 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 	lightColor.y = sin(glfwGetTime()*0.7f);
 	lightColor.z = sin(glfwGetTime()*1.3f);
 
-	glm::vec3 diffUse =  glm::vec3(0.5f);
+	glm::vec3 diffuse =  glm::vec3(0.5f);
 	glm::vec3 ambient = glm::vec3(0.2f);
 
 	//Light attribute
 	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffUse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), 1.0f, 1.0f, 1.0f);
 
 	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), ambient.x, ambient.y, ambient.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffUse"), diffUse.x, diffUse.y, diffUse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), diffuse.x, diffuse.y, diffuse.z);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), 1.0f, 1.0f, 1.0f);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.position"), lightPos.x, lightPos.y, lightPos.z);
 
@@ -614,7 +632,12 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 	glBindVertexArray(0);
 }
 
-void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, glm::vec3 lightPos, GLuint texture[])
+void ConfigMaterialAttribute(Shader shader, glm::vec3 attribute)
+{
+	
+}
+
+void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, glm::vec3 lightPos, GLuint texture[], glm::vec3 cubePos[])
 {
 	//Use
 	shader->Use();
@@ -622,8 +645,6 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 	//Transform uniform
 	//Model
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	TransformMatrixUniform(shader, model, MODEL);
 	//View
 	TransformMatrixUniform(shader, camera->GetViewMatrix(), VIEW);
 	//Projection
@@ -632,26 +653,19 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 
 	//Material attribute
 	//glUniform3f(glGetUniformLocation(shader->Program, "material.ambient"), 0.0f, 0.1f, 0.06f);
-	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffUse"), 0.0f, 0.50980392f, 0.50980392f);
-	glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), 0.0f, 0.0f, 0.0f);
+	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffuse"), 0.0f, 0.50980392f, 0.50980392f);
+	//glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), 0.0f, 0.0f, 0.0f);
 	glUniform1f(glGetUniformLocation(shader->Program, "material.shininess"), 32.0f);
 
-	glm::vec3 lightColor;
-	lightColor.x = sin(glfwGetTime()*2.0f);
-	lightColor.y = sin(glfwGetTime()*0.7f);
-	lightColor.z = sin(glfwGetTime()*1.3f);
-
-	glm::vec3 diffUse = glm::vec3(0.5f);
+	glm::vec3 diffuse = glm::vec3(0.5f);
 	glm::vec3 ambient = glm::vec3(0.2f);
 
 	//Light attribute
-	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffUse"), 1.0f, 1.0f, 1.0f);
-
 	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), ambient.x, ambient.y, ambient.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffUse"), diffUse.x, diffUse.y, diffUse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), diffuse.x, diffuse.y, diffuse.z);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), 1.0f, 1.0f, 1.0f);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.position"), lightPos.x, lightPos.y, lightPos.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.direction"), -0.2f, -1.0f, -0.3f);
 
 	//viewPos
 	glUniform3f(glGetUniformLocation(shader->Program, "viewPos"), camera->Position.x, camera->Position.y, camera->Position.z);
@@ -661,11 +675,33 @@ void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLui
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, texture[i]);
+		string value = "";
+		if (i == 0)
+			value = "material.diffuse";
+		if(i == 1)
+			value = "material.specular";
+		glUniform1i(glGetUniformLocation(shader->Program, value.c_str()), i);
 	}
 
 	//Draw
 	glBindVertexArray(*VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	for (GLuint i = 0; i < 10; i++)
+	{
+		model = glm::mat4();
+		model = glm::translate(model, cubePos[i]);
+		GLfloat angle = 20.0f * (i + 1);
+		
+		if (i % 3 == 0)
+		{
+			angle = (GLfloat)glfwGetTime() * angle;
+			
+		}
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		TransformMatrixUniform(shader, model, MODEL);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
+	
 	glBindVertexArray(0);
 }
 
@@ -824,7 +860,115 @@ void Lesson14(GLFWwindow* window, Camera* camera)
 		glm::vec3 lightPos = CreateLight(&lightShader, camera, projection, &LightVAO);
 
 		//Create gameObject
-		CreateGameObject(&shader, camera, projection, &VAO, lightPos, TT);
+		//CreateGameObject(&shader, camera, projection, &VAO, lightPos, TT);
+	});
+}
+
+void Lesson15(GLFWwindow* window, Camera* camera)
+{
+	GLfloat vertexs[] = {
+		// Positions           // Normals           // Texture Coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+	};
+
+	glm::vec3 cubePositions[] = {
+
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+
+	};
+
+	//Shader
+	Shader shader("shader5.vs", "shader5.fs");
+
+	//VAO VBO
+	GLuint VAO, VBO;
+	CreateVAO(&VAO, &VBO, vertexs, 48 * 6, []() {
+		//VAP
+		//=======
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//normal
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		//texCoords
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+	});
+
+	//TT
+	GLuint diffMap, specularMap;
+	CreateTexture(&diffMap, "Resource/img/muban2.png");
+	CreateTexture(&specularMap, "Resource/img/muban2_specular.png");
+	GLuint TT[2];
+	TT[0] = diffMap;
+	TT[1] = specularMap;
+
+	//Transform TT
+	//shader.Use();
+	//glUniform1i(glGetUniformLocation(shader.Program, "material.diffuse"), 0);
+	//glUniform1i(glGetUniformLocation(shader.Program, "material.specular"), 1);
+
+	//Projection
+	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
+
+	//Draw
+	Draw(window, camera, [&]() {
+		//Set deltaTime
+		SetDeltaTime();
+
+		//GameObject
+		CreateGameObject(&shader, camera, projection, &VAO, glm::vec3(1.0f), TT, cubePositions);
+
 	});
 }
 
@@ -842,10 +986,15 @@ int main()
 	//Lesson13(window, _camera);
 
 	//14
-	Lesson14(window, _camera);
+	//Lesson14(window, _camera);
+
+	//15
+	Lesson15(window, _camera);
 
 	return 0;
 }
+
+
 
 //Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)

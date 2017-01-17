@@ -21,10 +21,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,6 +86,12 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="shader5.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shaderTest.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shaderTest.vs">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
