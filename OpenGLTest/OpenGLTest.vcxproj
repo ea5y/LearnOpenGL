@@ -157,8 +157,15 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawStart.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader-direction-light.fs" />
+    <None Include="shader-direction-light.vs" />
+    <None Include="shader-point-light.fs" />
+    <None Include="shader-point-light.vs" />
+    <None Include="shader-spot-light.fs" />
+    <None Include="shader-spot-light.vs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
     <None Include="shader1.fs" />

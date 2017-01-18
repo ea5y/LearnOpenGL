@@ -41,6 +41,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Source Files\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vs">
@@ -92,6 +95,24 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="shaderTest.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-direction-light.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-direction-light.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-point-light.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-point-light.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-spot-light.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="shader-spot-light.fs">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

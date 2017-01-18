@@ -22,8 +22,9 @@
 
 //Shader
 #include "Shader.h"
-#include "DrawStart.h"
 #include "Camera.h"
+
+#include "Vertex.h"
 
 using namespace std;
 
@@ -41,13 +42,8 @@ bool KEYS[1024];
 
 bool FIRST_MOUSE = true;
 
-//LightColor
-
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-
 void scroll_callback(GLFWwindow *window, double xOffset, double yOffset);
 
 void InitGF()
@@ -151,23 +147,6 @@ void InputVertexInfo(GLuint *VAO, Func func)
 }
 
 template<typename Func>
-void InputVertexInfo(GLuint *VAO, GLuint* LightVAO, Func func)
-{
-	//Creae a buffer Array ID
-	glGenVertexArrays(1, VAO);
-	//Bind the vertex array object first, then bind and set vertex buffer(s) and attribute pointer(s).
-	glBindVertexArray(*VAO);
-
-	//Custom
-	func();
-
-	//Unbind
-	//Unbind VAO First for saveing EBO, that would bind EBO autoly when bind VAO 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-template<typename Func>
 void Draw(GLFWwindow *window, Camera *camera, Func func)
 {
 	//Loop
@@ -194,14 +173,18 @@ void Draw(GLFWwindow *window, Camera *camera, Func func)
 
 void Clear(GLuint *VAO, GLuint *VBO, GLuint *EBO)
 {
-	glDeleteVertexArrays(1, VAO);
-	glDeleteBuffers(1, VBO);
-
+	if (EBO != nullptr)
+	{
+		glDeleteVertexArrays(1, VAO);
+	}
+	if (EBO != nullptr)
+	{
+		glDeleteBuffers(1, VBO);
+	}
 	if (EBO != nullptr)
 	{
 		glDeleteBuffers(1, EBO);
 	}
-
 	glfwTerminate();
 }
 
@@ -218,67 +201,7 @@ void Lesson12(GLFWwindow *window, Camera *camera)
 	//Set Shader
 	cout << "Create Shader..." << endl;
 	Shader shader("shader3.vs", "shader3.fs");
-
-	//Vertex
-	GLfloat vertexs[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-
-	glm::vec3 cubePositions[] = {
-
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(2.0f, 5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f, 3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f, 2.0f, -2.5f),
-		glm::vec3(1.5f, 0.2f, -1.5f),
-		glm::vec3(-1.3f, 1.0f, -1.5f)
-
-	};
-
+	
 	//Input vertex
 	cout << "Input vertexInfo" << endl;
 	GLuint VAO, VBO, TT[2];
@@ -288,7 +211,7 @@ void Lesson12(GLFWwindow *window, Camera *camera)
 		//=======
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexsPT), vertexsPT, GL_STATIC_DRAW);
 
 		//========
 		//TT
@@ -389,19 +312,6 @@ void SetCamera(Camera* &camera, GLFWwindow *window)
 	SetScrollCallback(window, camera);
 }
 
-void CreateLightVAO(GLuint* lightVAO, GLuint* VBO)
-{
-	//Light VAO
-	glGenVertexArrays(1, lightVAO);
-	glBindVertexArray(*lightVAO);
-	//VBO to Light VAO
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	//Light VAO vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	//Unbind
-	glBindVertexArray(0);
-}
 
 void CreateLightVAO(GLuint* lightVAO, GLuint* VBO, int stride)
 {
@@ -417,28 +327,6 @@ void CreateLightVAO(GLuint* lightVAO, GLuint* VBO, int stride)
 	glBindVertexArray(0);
 }
 
-void CreateVAO(GLuint* VAO, GLuint* VBO, GLfloat vertexs[], int vertexNum)
-{
-	//VAO
-	glGenVertexArrays(1, VAO);
-	glBindVertexArray(*VAO);
-
-	//VBO
-	glGenBuffers(1, VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexNum * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
-
-	//VAP position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	//VAP normal
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	//Unbind
-	glBindVertexArray(0);
-}
 
 template<typename Func>
 void CreateVAO(GLuint* VAO, GLuint* VBO, GLfloat vertexs[], int elemNum, Func func)
@@ -480,63 +368,6 @@ void CreateTexture(GLuint* texture, string imageName)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-void CreateVAO(GLuint* VAO, GLuint* VBO, GLuint* texture, GLfloat vertexs[], int vertexNum, int stride)
-{
-	//VAO
-	glGenVertexArrays(1, VAO);
-	glBindVertexArray(*VAO);
-
-	//VBO
-	glGenBuffers(1, VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexNum * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
-
-	//VAP position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	//VAP normal
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	//VAO texCoords
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-
-	//Unbind
-	glBindVertexArray(0);
-}
-
-GLuint* CreateTexture(GLuint texture[], GLuint textureNum)
-{
-	int width, height;
-	for (int i = 0; i < textureNum; i++)
-	{		
-		//TT
-		glGenTextures(1, &texture[i]);
-		glBindTexture(GL_TEXTURE_2D, texture[i]);
-		//Set wrapping
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		//Set filter
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load img
-		unsigned char* image = SOIL_load_image(IMAGE[i].c_str(), &width, &height, 0, SOIL_LOAD_RGB);
-		//Generate
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-		glGenerateTextureMipmap(GL_TEXTURE_2D);
-		//Free
-		SOIL_free_image_data(image);
-		//Unbind
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	return texture;
-}
-
-
 enum MATRIX
 {
 	MODEL,
@@ -558,7 +389,8 @@ glm::vec3 CreateLight(Shader* lightShader, Camera* camera, glm::mat4 projection,
 {
 	//Light pos
 	glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-
+	//lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+	//lightPos.y = sin(glfwGetTime() / 2.0f) - 1.0f;
 	//Use
 	lightShader->Use();
 	
@@ -581,128 +413,133 @@ glm::vec3 CreateLight(Shader* lightShader, Camera* camera, glm::mat4 projection,
 	return lightPos;
 }
 
-void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, glm::vec3 lightPos)
+
+enum MaterialMap {
+	DIFFUSE,
+	SPECULAR,
+	ALL
+};
+
+struct MaterialAttribute
 {
-	//Use
-	shader->Use();
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat shininess;
+};
 
-	//Transform uniform
-	//Model
-	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	TransformMatrixUniform(shader, model, MODEL);
-	//View
-	TransformMatrixUniform(shader, camera->GetViewMatrix(), VIEW);
-	//Projection
-	TransformMatrixUniform(shader, projection, PROJECTION);
+struct LightAttribute
+{
+	glm::vec3 position;
+	glm::vec3 direction;
+	GLfloat cutOff;
+	GLfloat outerCutOff;
 
-	
-	//Material attribute
-	//glUniform3f(glGetUniformLocation(shader->Program, "material.ambient"), 0.0f, 0.1f, 0.06f);
-	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffuse"), 0.0f, 0.50980392f, 0.50980392f);
-	glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), 0.50196078f, 0.50196078f, 0.50196078f);
-	glUniform1f(glGetUniformLocation(shader->Program, "material.shininess"), 32.0f);
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat constant;
+	GLfloat linear;
+	GLfloat quadratic;
+};
 
-	glm::vec3 lightColor;
-	lightColor.x = sin(glfwGetTime()*2.0f);
-	lightColor.y = sin(glfwGetTime()*0.7f);
-	lightColor.z = sin(glfwGetTime()*1.3f);
-
-	glm::vec3 diffuse =  glm::vec3(0.5f);
-	glm::vec3 ambient = glm::vec3(0.2f);
-
-	//Light attribute
-	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), 1.0f, 1.0f, 1.0f);
-
-	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), ambient.x, ambient.y, ambient.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), diffuse.x, diffuse.y, diffuse.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.position"), lightPos.x, lightPos.y, lightPos.z);
-
-	//
-	glUniform3f(glGetUniformLocation(shader->Program, "viewPos"), camera->Position.x, camera->Position.y, camera->Position.z);
-
-	//TT
-	//glBindTexture(GL_TEXTURE_2D, )
-
-	//Draw
-	glBindVertexArray(*VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
+void TransformLightAttribute(Shader* shader, LightAttribute light)
+{
+	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), light.ambient.x, light.ambient.y, light.ambient.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), light.diffuse.x, light.diffuse.y, light.diffuse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), light.specular.x, light.specular.y, light.specular.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.position"), light.position.x, light.position.y, light.position.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "light.direction"), light.direction.x, light.direction.y, light.direction.z);
+	glUniform1f(glGetUniformLocation(shader->Program, "light.cutOff"), glm::cos(glm::radians(light.cutOff)));
+	glUniform1f(glGetUniformLocation(shader->Program, "light.outerCutOff"), glm::cos(glm::radians(light.outerCutOff)));
+	glUniform1f(glGetUniformLocation(shader->Program, "light.constant"), light.constant);
+	glUniform1f(glGetUniformLocation(shader->Program, "light.linear"), light.linear);
+	glUniform1f(glGetUniformLocation(shader->Program, "light.quadratic"), light.quadratic);
 }
 
-void ConfigMaterialAttribute(Shader shader, glm::vec3 attribute)
+void TransformMaterialAttribute(Shader* shader, MaterialMap map, MaterialAttribute material)
 {
-	
-}
+	if (map == DIFFUSE)
+	{
+		glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), material.specular.x, material.specular.y, material.specular.z);
+	}
 
-void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, glm::vec3 lightPos, GLuint texture[], glm::vec3 cubePos[])
-{
-	//Use
-	shader->Use();
+	if (map == SPECULAR)
+	{
+		glUniform3f(glGetUniformLocation(shader->Program, "material.diffuse"), material.diffuse.x, material.diffuse.y, material.diffuse.z);
+	}
 
-	//Transform uniform
-	//Model
-	glm::mat4 model;
-	//View
-	TransformMatrixUniform(shader, camera->GetViewMatrix(), VIEW);
-	//Projection
-	TransformMatrixUniform(shader, projection, PROJECTION);
-
-
-	//Material attribute
+	if (map == ALL)
+		;
 	//glUniform3f(glGetUniformLocation(shader->Program, "material.ambient"), 0.0f, 0.1f, 0.06f);
 	//glUniform3f(glGetUniformLocation(shader->Program, "material.diffuse"), 0.0f, 0.50980392f, 0.50980392f);
 	//glUniform3f(glGetUniformLocation(shader->Program, "material.specular"), 0.0f, 0.0f, 0.0f);
-	glUniform1f(glGetUniformLocation(shader->Program, "material.shininess"), 32.0f);
+	glUniform1f(glGetUniformLocation(shader->Program, "material.shininess"), material.shininess);
+}
 
-	glm::vec3 diffuse = glm::vec3(0.5f);
-	glm::vec3 ambient = glm::vec3(0.2f);
+void TransformMatrix(Shader* shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
+{
+	//Model
+	TransformMatrixUniform(shader, model, MODEL);
+	//View
+	TransformMatrixUniform(shader, view, VIEW);
+	//Projection
+	TransformMatrixUniform(shader, projection, PROJECTION);
+}
 
-	//Light attribute
-	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), ambient.x, ambient.y, ambient.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), diffuse.x, diffuse.y, diffuse.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.position"), lightPos.x, lightPos.y, lightPos.z);
-	glUniform3f(glGetUniformLocation(shader->Program, "light.direction"), -0.2f, -1.0f, -0.3f);
-
-	//viewPos
+void TransformViewPos(Shader* shader, Camera* camera)
+{
 	glUniform3f(glGetUniformLocation(shader->Program, "viewPos"), camera->Position.x, camera->Position.y, camera->Position.z);
+}
 
-	//TT
-	for (int i = 0; i < 2; i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, texture[i]);
-		string value = "";
-		if (i == 0)
-			value = "material.diffuse";
-		if(i == 1)
-			value = "material.specular";
-		glUniform1i(glGetUniformLocation(shader->Program, value.c_str()), i);
-	}
+void TransformTexture(Shader* shader, GLuint* texture, GLuint index, string location)
+{
+	glActiveTexture(GL_TEXTURE0 + index);
+	glBindTexture(GL_TEXTURE_2D, *texture);
+	glUniform1i(glGetUniformLocation(shader->Program, location.c_str()), index);
+}
 
-	//Draw
+void RealDraw(Shader* shader, GLuint* VAO,GLuint objNum, glm::vec3 cubePos[])
+{
 	glBindVertexArray(*VAO);
-	for (GLuint i = 0; i < 10; i++)
+	for (GLuint i = 0; i < objNum; i++)
 	{
-		model = glm::mat4();
+		glm::mat4 model = glm::mat4();
 		model = glm::translate(model, cubePos[i]);
 		GLfloat angle = 20.0f * (i + 1);
-		
+
 		if (i % 3 == 0)
 		{
 			angle = (GLfloat)glfwGetTime() * angle;
-			
+
 		}
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		TransformMatrixUniform(shader, model, MODEL);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
-	
 	glBindVertexArray(0);
+}
+
+template<typename Func>
+void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, GLuint objNum, glm::vec3 cubePos[], Func func)
+{
+	//Use
+	shader->Use();
+	//viewPos
+	TransformViewPos(shader, camera);
+
+	//Transform
+	//=============
+	//matrix
+	glm::mat4 model;
+	TransformMatrix(shader, model, camera->GetViewMatrix(), projection);
+
+	//material attribute,light attribute,texture
+	func();
+		
+	//Draw
+	RealDraw(shader, VAO, objNum, cubePos);
 }
 
 void SetDeltaTime()
@@ -712,142 +549,32 @@ void SetDeltaTime()
 	LAST_FRAME = currentFrame;
 }
 
-void Lesson13(GLFWwindow* window, Camera* camera)
-{
-	//Vertex
-	GLfloat vertexs[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
-
-	//Shader
-	Shader shader("shader4.vs", "shader4.fs");
-	Shader lightShader("shader4.vs", "shader4-1.fs");
-	//VAO VBO
-	GLuint VAO, VBO, LightVAO;
-	CreateVAO(&VAO, &VBO, vertexs, 36 * 6);
-	CreateLightVAO(&LightVAO, &VBO);
-	//TT
-	
-	
-	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
-
-	//Draw
-	Draw(window, camera, [&]() {
-		//Set DeltaTime
-		SetDeltaTime();
-
-		//Light
-		glm::vec3 lightPos = CreateLight(&lightShader, camera, projection, &LightVAO);
-
-		//GameObject
-		CreateGameObject(&shader, camera, projection, &VAO, lightPos);
-		
-	});
-
-	//Clear
-	Clear(&VAO, &VBO);
-}
-
 void Lesson14(GLFWwindow* window, Camera* camera)
 {
-	GLfloat vertexs[] = {
-		// Positions           // Normals           // Texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-
 	//Shader
 	Shader shader("shader5.vs", "shader5.fs");
 	Shader lightShader("shader5.vs", "shader4-1.fs");
 	//VAO VBO
-	GLuint VAO, VBO, LightVAO, texture;
-	CreateVAO(&VAO, &VBO, &texture, vertexs, 48 * 6, 8);
+	GLuint VAO, VBO, LightVAO;
+	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
+		//VAP
+		//=======
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//normal
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		//texCoords
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+	});
 	CreateLightVAO(&LightVAO, &VBO, 8);
 	
 	//TT
-	GLuint diffuseMap, specular;
+	GLuint diffuseMap, specularMap;
 	CreateTexture(&diffuseMap, "Resource/img/muban2.png");
-	CreateTexture(&specular, "Resource/img/muban2_specular.png");
-	GLuint TT[2] = { diffuseMap, specular };
+	CreateTexture(&specularMap, "Resource/img/muban2_specular.png");
 
 	//Projection
 	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
@@ -859,79 +586,41 @@ void Lesson14(GLFWwindow* window, Camera* camera)
 		//Create light
 		glm::vec3 lightPos = CreateLight(&lightShader, camera, projection, &LightVAO);
 
+		MaterialAttribute material;
+		material.shininess = 32.0f;
+
+		LightAttribute light;
+		light.ambient = glm::vec3(0.1f);
+		light.diffuse = glm::vec3(0.5f);
+		light.specular = glm::vec3(1.0f);
+		light.position = lightPos;
+		
+		light.constant = 1.0f;
+		light.linear = 0.09f;
+		light.quadratic = 0.032f;
+
 		//Create gameObject
-		//CreateGameObject(&shader, camera, projection, &VAO, lightPos, TT);
+		CreateGameObject(&shader, camera, projection, &VAO, 1, cubePositions, [&]() {
+			//material
+			TransformMaterialAttribute(&shader, ALL, material);
+			//light
+			TransformLightAttribute(&shader, light);
+			//texture
+			TransformTexture(&shader, &diffuseMap, 0, "material.diffuse");
+			TransformTexture(&shader, &specularMap, 1, "material.specular");
+		});
 	});
 }
 
+//Direction light
 void Lesson15(GLFWwindow* window, Camera* camera)
 {
-	GLfloat vertexs[] = {
-		// Positions           // Normals           // Texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-
-	glm::vec3 cubePositions[] = {
-
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(2.0f, 5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f, 3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f, 2.0f, -2.5f),
-		glm::vec3(1.5f, 0.2f, -1.5f),
-		glm::vec3(-1.3f, 1.0f, -1.5f)
-
-	};
-
 	//Shader
-	Shader shader("shader5.vs", "shader5.fs");
+	Shader shader("shader-direction-light.vs", "shader-direction-light.fs");
 
 	//VAO VBO
 	GLuint VAO, VBO;
-	CreateVAO(&VAO, &VBO, vertexs, 48 * 6, []() {
+	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
 		//VAP
 		//=======
 		//position
@@ -949,14 +638,6 @@ void Lesson15(GLFWwindow* window, Camera* camera)
 	GLuint diffMap, specularMap;
 	CreateTexture(&diffMap, "Resource/img/muban2.png");
 	CreateTexture(&specularMap, "Resource/img/muban2_specular.png");
-	GLuint TT[2];
-	TT[0] = diffMap;
-	TT[1] = specularMap;
-
-	//Transform TT
-	//shader.Use();
-	//glUniform1i(glGetUniformLocation(shader.Program, "material.diffuse"), 0);
-	//glUniform1i(glGetUniformLocation(shader.Program, "material.specular"), 1);
 
 	//Projection
 	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
@@ -966,10 +647,193 @@ void Lesson15(GLFWwindow* window, Camera* camera)
 		//Set deltaTime
 		SetDeltaTime();
 
-		//GameObject
-		CreateGameObject(&shader, camera, projection, &VAO, glm::vec3(1.0f), TT, cubePositions);
+		MaterialAttribute material;
+		material.shininess = 32.0f;
 
+		LightAttribute light;
+		light.ambient = glm::vec3(0.1f);
+		light.diffuse = glm::vec3(0.5f);
+		light.specular = glm::vec3(1.0f);
+		light.direction = glm::vec3(0.5f);
+		light.constant = 1.0f;
+		light.linear = 0.09f;
+		light.quadratic = 0.032f;
+
+		//GameObject
+		CreateGameObject(&shader, camera, projection, &VAO, 10, cubePositions, [&]() {
+			//material
+			TransformMaterialAttribute(&shader, ALL, material);
+			//light
+			TransformLightAttribute(&shader, light);
+			//texture
+			TransformTexture(&shader, &diffMap, 0, "material.diffuse");
+			TransformTexture(&shader, &specularMap, 1, "material.specular");
+		});
 	});
+
+	Clear(&VAO, &VBO, nullptr);
+}
+
+//Point light
+void Lesson16(GLFWwindow* window, Camera* camera)
+{
+	
+	//GameObject shader
+	Shader gameObjShader("shader-point-light.vs", "shader-point-light.fs");
+	//Light shader
+	Shader lightShader("shader-point-light.vs", "shader4-1.fs");
+
+	//VAO VBO
+	GLuint VAO, VBO;
+	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, [&]() {
+		//VAP 
+		//=======
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//normal
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		//texCoord
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+	});
+
+	//Light VAO
+	GLuint LightVAO;
+	CreateLightVAO(&LightVAO, &VBO, 8);
+	
+	//TT
+	GLuint diffuseMap, specularMap;
+	CreateTexture(&diffuseMap, "Resource/img/muban2.png");
+	CreateTexture(&specularMap, "Resource/img/muban2_specular.png");
+
+	//Projection
+	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
+	
+
+	//Draw
+	Draw(window, camera, [&]() {
+		//Set deltaTime
+		SetDeltaTime();
+
+		//Create Light
+		auto lightPos = CreateLight(&lightShader, camera, projection, &LightVAO);
+
+		//Config material
+		MaterialAttribute material;
+		material.shininess = 32.0f;
+
+		//Config light
+		LightAttribute light;
+		light.ambient = glm::vec3(0.2f);
+		light.diffuse = glm::vec3(0.5f);
+		light.specular = glm::vec3(1.0f);
+		light.position = lightPos;
+		light.constant = 1.0f;
+		light.linear = 0.09f;
+		light.quadratic = 0.032f;
+
+		//Create GameObject
+		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, cubePositions, [&]() {
+			//Transform
+			//=============
+			//material
+			TransformMaterialAttribute(&gameObjShader, ALL, material);
+
+			//light
+			TransformLightAttribute(&gameObjShader, light);
+
+			//texture
+			TransformTexture(&gameObjShader, &diffuseMap, 0, "material.diffuse");
+			TransformTexture(&gameObjShader, &specularMap, 1, "material.specular");
+		});
+	});
+
+	//Clear
+	Clear(&VAO, &VBO, nullptr);
+	Clear(&LightVAO, nullptr, nullptr);
+}
+
+//Spotlight
+void Lesson17(GLFWwindow* window, Camera* camera)
+{
+	//Shader
+	Shader gameObjShader("shader-spot-light.vs", "shader-spot-light.fs");
+	Shader lightShader("shader-spot-light.vs", "shader4-1.fs");
+
+	//VAO VBO
+	GLuint VAO, VBO;
+	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
+		//VAP 
+		//=======
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//normal
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		//texCoord
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+	});
+
+	//LightVAO
+	GLuint LightVAO;
+	CreateLightVAO(&LightVAO, &VBO, 8);
+
+	//TT
+	GLuint diffuseMap, specularMap;
+	CreateTexture(&diffuseMap, "Resource/img/muban2.png");
+	CreateTexture(&specularMap, "Resource/img/muban2_specular.png");
+
+	//Projection
+	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
+
+	//Draw
+	Draw(window, camera, [&]() {
+		//Set deltaTime
+		SetDeltaTime();
+
+		//Create Light
+		auto lightPos = CreateLight(&lightShader, camera, projection, &LightVAO);
+
+		//Config material
+		MaterialAttribute material;
+		material.shininess = 32.0f;
+
+		//Config light
+		LightAttribute light;
+		light.ambient = glm::vec3(0.2f);
+		light.diffuse = glm::vec3(0.5f);
+		light.specular = glm::vec3(1.0f);
+		light.position = camera->Position;
+		light.direction = camera->Front;
+		light.cutOff = 12.5f;
+		light.outerCutOff = 17.5f;
+		light.constant = 1.0f;
+		light.linear = 0.09f;
+		light.quadratic = 0.032f;
+
+		//Create GameObject
+		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, cubePositions, [&]() {
+			//Transform
+			//=============
+			//material
+			TransformMaterialAttribute(&gameObjShader, ALL, material);
+
+			//light
+			TransformLightAttribute(&gameObjShader, light);
+
+			//texture
+			TransformTexture(&gameObjShader, &diffuseMap, 0, "material.diffuse");
+			TransformTexture(&gameObjShader, &specularMap, 1, "material.specular");
+		});
+	});
+
+	//Clear
+	Clear(&VAO, &VBO, nullptr);
+	Clear(&LightVAO, nullptr, nullptr);
 }
 
 int main()
@@ -989,8 +853,13 @@ int main()
 	//Lesson14(window, _camera);
 
 	//15
-	Lesson15(window, _camera);
+	//Lesson15(window, _camera);
 
+	//16
+	//Lesson16(window, _camera);
+
+	//17
+	Lesson17(window, _camera);
 	return 0;
 }
 
