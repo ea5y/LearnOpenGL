@@ -25,6 +25,7 @@
 #include "Camera.h"
 
 #include "Vertex.h"
+#include "URL.h"
 
 using namespace std;
 
@@ -211,7 +212,7 @@ void Lesson12(GLFWwindow *window, Camera *camera)
 		//=======
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexsPT), vertexsPT, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(TEST_COORDS::vertexsPT), TEST_COORDS::vertexsPT, GL_STATIC_DRAW);
 
 		//========
 		//TT
@@ -285,7 +286,7 @@ void Lesson12(GLFWwindow *window, Camera *camera)
 		for (int i = 0; i < 10; i++)
 		{
 			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
+			model = glm::translate(model, TEST_COORDS::cubePositions[i]);
 			GLfloat angle = 20.0f * i;
 			if (i % 3 == 0)
 				angle = glm::radians((GLfloat)glfwGetTime() * 20.0f) * (i + 1);
@@ -413,7 +414,6 @@ glm::vec3 CreateLight(Shader* lightShader, Camera* camera, glm::mat4 projection,
 	return lightPos;
 }
 
-
 enum MaterialMap {
 	DIFFUSE,
 	SPECULAR,
@@ -427,6 +427,41 @@ struct MaterialAttribute
 	glm::vec3 specular;
 	GLfloat shininess;
 };
+
+struct DirLightAttribute
+{
+	glm::vec3 direction;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+};
+
+struct PointLightAttribute
+{
+	glm::vec3 position;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat constant;
+	GLfloat linear;
+	GLfloat quadratic;
+};
+
+struct SpotLightAttribute
+{
+	glm::vec3 position;
+	glm::vec3 direction;
+	GLfloat cutOff;
+	GLfloat outerCutOff;
+
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat constant;
+	GLfloat linear;
+	GLfloat quadratic;
+};
+
 
 struct LightAttribute
 {
@@ -455,6 +490,50 @@ void TransformLightAttribute(Shader* shader, LightAttribute light)
 	glUniform1f(glGetUniformLocation(shader->Program, "light.constant"), light.constant);
 	glUniform1f(glGetUniformLocation(shader->Program, "light.linear"), light.linear);
 	glUniform1f(glGetUniformLocation(shader->Program, "light.quadratic"), light.quadratic);
+}
+
+void TransformDirLightAttribute(Shader* shader, DirLightAttribute light)
+{
+	glUniform3f(glGetUniformLocation(shader->Program, "dirLight.ambient"), light.ambient.x, light.ambient.y, light.ambient.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "dirLight.diffuse"), light.diffuse.x, light.diffuse.y, light.diffuse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "dirLight.specular"), light.specular.x, light.specular.y, light.specular.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "dirLight.direction"), light.direction.x, light.direction.y, light.direction.z);
+}
+
+void TransformPointLightAttribute(Shader* shader, PointLightAttribute light, int index)
+{
+	stringstream ambient, diffuse, specular, position, constant, linear, quadratic;
+	ambient << "pointLights[" << index << "].ambient";
+	diffuse << "pointLights[" << index << "].diffuse";
+	specular << "pointLights[" << index << "].specular";
+	position << "pointLights[" << index << "].position";
+	constant << "pointLights[" << index << "].constant";
+	linear << "pointLights[" << index << "].linear";
+	quadratic << "pointLights[" << index << "].quadratic";
+
+	//cout << ambient.str().c_str() << endl;
+
+	glUniform3f(glGetUniformLocation(shader->Program, ambient.str().c_str()), light.ambient.x, light.ambient.y, light.ambient.z);
+	glUniform3f(glGetUniformLocation(shader->Program, diffuse.str().c_str()), light.diffuse.x, light.diffuse.y, light.diffuse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, specular.str().c_str()), light.specular.x, light.specular.y, light.specular.z);
+	glUniform3f(glGetUniformLocation(shader->Program, position.str().c_str()), light.position.x, light.position.y, light.position.z);
+	glUniform1f(glGetUniformLocation(shader->Program, constant.str().c_str()), light.constant);
+	glUniform1f(glGetUniformLocation(shader->Program, linear.str().c_str()), light.linear);
+	glUniform1f(glGetUniformLocation(shader->Program, quadratic.str().c_str()), light.quadratic);
+}
+
+void TransformSpotLightAttribute(Shader* shader, SpotLightAttribute light)
+{
+	glUniform3f(glGetUniformLocation(shader->Program, "spotLight.ambient"), light.ambient.x, light.ambient.y, light.ambient.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "spotLight.diffuse"), light.diffuse.x, light.diffuse.y, light.diffuse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "spotLight.specular"), light.specular.x, light.specular.y, light.specular.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "spotLight.position"), light.position.x, light.position.y, light.position.z);
+	glUniform3f(glGetUniformLocation(shader->Program, "spotLight.direction"), light.direction.x, light.direction.y, light.direction.z);
+	glUniform1f(glGetUniformLocation(shader->Program, "spotLight.cutOff"), glm::cos(glm::radians(light.cutOff)));
+	glUniform1f(glGetUniformLocation(shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(light.outerCutOff)));
+	glUniform1f(glGetUniformLocation(shader->Program, "spotLight.constant"), light.constant);
+	glUniform1f(glGetUniformLocation(shader->Program, "spotLight.linear"), light.linear);
+	glUniform1f(glGetUniformLocation(shader->Program, "spotLight.quadratic"), light.quadratic);
 }
 
 void TransformMaterialAttribute(Shader* shader, MaterialMap map, MaterialAttribute material)
@@ -521,6 +600,29 @@ void RealDraw(Shader* shader, GLuint* VAO,GLuint objNum, glm::vec3 cubePos[])
 	glBindVertexArray(0);
 }
 
+void CreateLight(Shader* lightShader, Camera* camera, glm::mat4 projection, GLuint* LightVAO, GLuint objNum, glm::vec3 lightPos[])
+{
+	//Use
+	lightShader->Use();
+
+	//Transform matrix
+	glm::mat4 model;
+	TransformMatrix(lightShader, model, camera->GetViewMatrix(), projection);
+
+
+	//Draw
+	glBindVertexArray(*LightVAO);
+	for (GLuint i = 0; i < objNum; i++)
+	{
+		model = glm::mat4();
+		model = glm::translate(model, lightPos[i]);
+		model = glm::scale(model, glm::vec3(0.2f));
+		TransformMatrixUniform(lightShader, model, MODEL);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	glBindVertexArray(0);
+}
+
 template<typename Func>
 void CreateGameObject(Shader* shader, Camera* camera, glm::mat4 projection, GLuint* VAO, GLuint objNum, glm::vec3 cubePos[], Func func)
 {
@@ -556,7 +658,7 @@ void Lesson14(GLFWwindow* window, Camera* camera)
 	Shader lightShader("shader5.vs", "shader4-1.fs");
 	//VAO VBO
 	GLuint VAO, VBO, LightVAO;
-	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
+	CreateVAO(&VAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, []() {
 		//VAP
 		//=======
 		//position
@@ -600,7 +702,7 @@ void Lesson14(GLFWwindow* window, Camera* camera)
 		light.quadratic = 0.032f;
 
 		//Create gameObject
-		CreateGameObject(&shader, camera, projection, &VAO, 1, cubePositions, [&]() {
+		CreateGameObject(&shader, camera, projection, &VAO, 1, TEST_COORDS::cubePositions, [&]() {
 			//material
 			TransformMaterialAttribute(&shader, ALL, material);
 			//light
@@ -620,7 +722,7 @@ void Lesson15(GLFWwindow* window, Camera* camera)
 
 	//VAO VBO
 	GLuint VAO, VBO;
-	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
+	CreateVAO(&VAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, []() {
 		//VAP
 		//=======
 		//position
@@ -660,7 +762,7 @@ void Lesson15(GLFWwindow* window, Camera* camera)
 		light.quadratic = 0.032f;
 
 		//GameObject
-		CreateGameObject(&shader, camera, projection, &VAO, 10, cubePositions, [&]() {
+		CreateGameObject(&shader, camera, projection, &VAO, 10, TEST_COORDS::cubePositions, [&]() {
 			//material
 			TransformMaterialAttribute(&shader, ALL, material);
 			//light
@@ -685,7 +787,7 @@ void Lesson16(GLFWwindow* window, Camera* camera)
 
 	//VAO VBO
 	GLuint VAO, VBO;
-	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, [&]() {
+	CreateVAO(&VAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, [&]() {
 		//VAP 
 		//=======
 		//position
@@ -735,7 +837,7 @@ void Lesson16(GLFWwindow* window, Camera* camera)
 		light.quadratic = 0.032f;
 
 		//Create GameObject
-		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, cubePositions, [&]() {
+		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, TEST_COORDS::cubePositions, [&]() {
 			//Transform
 			//=============
 			//material
@@ -764,7 +866,7 @@ void Lesson17(GLFWwindow* window, Camera* camera)
 
 	//VAO VBO
 	GLuint VAO, VBO;
-	CreateVAO(&VAO, &VBO, vertexsPNT, 48 * 6, []() {
+	CreateVAO(&VAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, []() {
 		//VAP 
 		//=======
 		//position
@@ -816,7 +918,7 @@ void Lesson17(GLFWwindow* window, Camera* camera)
 		light.quadratic = 0.032f;
 
 		//Create GameObject
-		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, cubePositions, [&]() {
+		CreateGameObject(&gameObjShader, camera, projection, &VAO, 10, TEST_COORDS::cubePositions, [&]() {
 			//Transform
 			//=============
 			//material
@@ -828,6 +930,137 @@ void Lesson17(GLFWwindow* window, Camera* camera)
 			//texture
 			TransformTexture(&gameObjShader, &diffuseMap, 0, "material.diffuse");
 			TransformTexture(&gameObjShader, &specularMap, 1, "material.specular");
+		});
+	});
+
+	//Clear
+	Clear(&VAO, &VBO, nullptr);
+	Clear(&LightVAO, nullptr, nullptr);
+}
+
+glm::mat4 CreateProjection(Camera* camera)
+{
+	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
+	return projection;
+}
+
+DirLightAttribute ConfigDirLight(glm::vec3 ambient = glm::vec3(0.2f), glm::vec3 diffuse = glm::vec3(0.5f), glm::vec3 specular = glm::vec3(1.0f), glm::vec3 direction = glm::vec3(-0.2f, -0.5f, -0.3f))
+{
+	DirLightAttribute dirLight;
+	dirLight.ambient = ambient;
+	dirLight.diffuse = diffuse;
+	dirLight.specular = specular;
+	dirLight.direction = direction;
+	return dirLight;
+}
+
+PointLightAttribute ConfigPointLight(glm::vec3 position)
+{
+	PointLightAttribute pointLight;
+	pointLight.ambient = glm::vec3(0.2f);
+	pointLight.diffuse = glm::vec3(0.3f);
+	pointLight.specular = glm::vec3(0.5f);
+	pointLight.position = position;
+	pointLight.constant = 1.0f;
+	pointLight.linear = 0.09f;
+	pointLight.quadratic = 0.032f;
+	return pointLight;
+}
+
+SpotLightAttribute ConfigSpotLight(glm::vec3 position, glm::vec3 direction)
+{
+	SpotLightAttribute spotLight;
+	spotLight.ambient = glm::vec3(0.2f);
+	spotLight.diffuse = glm::vec3(1.0f);
+	spotLight.specular = glm::vec3(1.0f);
+	spotLight.position = position;
+	spotLight.direction = direction;
+	spotLight.cutOff = 8.5f;
+	spotLight.outerCutOff = 10.5f;
+	spotLight.constant = 1.0f;
+	spotLight.linear = 0.09f;
+	spotLight.quadratic = 0.032f;
+	return spotLight;
+}
+
+//Multi Light
+void Lesson18(GLFWwindow* window, Camera* camera)
+{
+	//Shader
+	Shader gameShader("shader-multi-light.vs", "shader-multi-light.fs");
+	Shader lightShader("shader-multi-light.vs", "shader4-1.fs");
+
+	//VAO VBO
+	GLuint VAO, VBO;
+	CreateVAO(&VAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, []() {
+		//VAP
+		//========
+		//position
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		//normal
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		//texCoords
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+	});
+
+	//Light VAO
+	GLuint LightVAO;
+	CreateLightVAO(&LightVAO, &VBO, 8);
+
+	//TT
+	GLuint diffuseMap, specularMap;
+	CreateTexture(&diffuseMap, URL::GetMuban2_PNG());
+	CreateTexture(&specularMap, URL::GetMuban2_Specular_PNG());
+
+	//Projection
+	glm::mat4 projection = CreateProjection(camera);
+
+	
+	//Draw
+	Draw(window, camera, [&]() {
+		//Set deltaTime
+		SetDeltaTime();
+
+		//Create light
+		CreateLight(&lightShader, camera, projection, &LightVAO, 4, TEST_COORDS::pointLightPositions);
+
+		//Config Material and Light
+		MaterialAttribute material;
+		material.shininess = 32.0f;
+
+		DirLightAttribute dirLight = ConfigDirLight();
+
+		PointLightAttribute pointLights[4];
+		for (int i = 0; i < 4; i++)
+		{
+			PointLightAttribute pointLight = ConfigPointLight(TEST_COORDS::pointLightPositions[i]);
+			pointLights[i] = pointLight;
+		}
+
+		SpotLightAttribute spotLight = ConfigSpotLight(camera->Position, camera->Front);
+
+		//Create gameObject
+		CreateGameObject(&gameShader, camera, projection, &VAO, 10, TEST_COORDS::cubePositions, [&]() {
+			//Transform
+			//============
+			//material
+			TransformMaterialAttribute(&gameShader, ALL, material);
+
+			//light
+			TransformDirLightAttribute(&gameShader, dirLight);
+			for (int i = 0; i < 4; i++)
+			{
+				TransformPointLightAttribute(&gameShader, pointLights[i], i);
+			}
+			TransformSpotLightAttribute(&gameShader, spotLight);
+			
+
+			//texture
+			TransformTexture(&gameShader, &diffuseMap, 0, "material.diffuse");
+			TransformTexture(&gameShader, &specularMap, 1, "material.specular");
 		});
 	});
 
@@ -859,7 +1092,10 @@ int main()
 	//Lesson16(window, _camera);
 
 	//17
-	Lesson17(window, _camera);
+	//Lesson17(window, _camera);
+
+	//18
+	Lesson18(window, _camera);
 	return 0;
 }
 

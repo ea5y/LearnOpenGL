@@ -50,9 +50,9 @@ void main()
 	float epsilon = light.cutOff - light.outerCutOff;
 	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0f, 1.0f);
 
-	vec3 lightDiffuse = light.diffuse;
+	//vec3 lightDiffuse = light.diffuse;
 
-	lightDiffuse *= intensity;
+	//lightDiffuse *= intensity;
 	
 	//ambient
 	//vec3 ambient = light.ambient * material.ambient;
@@ -61,7 +61,8 @@ void main()
 	//diffuse
 	float diff = max(dot(norm, lightDir), 0.0f);
 	//vec3 diffuse = light.diffuse * diff * material.diffuse;
-	vec3 diffuse = lightDiffuse * diff * vec3(texture(material.diffuse, TexCoords));
+	//vec3 diffuse = lightDiffuse * diff * vec3(texture(material.diffuse, TexCoords));
+	vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
 
 	//specular
 	vec3 viewDir = normalize(viewPos - FragPos);
@@ -70,7 +71,7 @@ void main()
 	vec3 specular = light.specular * (spec * vec3(texture(material.specular, TexCoords)));
 
 
-	specular *= intensity;
+	//specular *= intensity;
 
 
 
@@ -78,12 +79,8 @@ void main()
     float distance    = length(light.position - FragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
 
-    ambient  *= attenuation;  
-    diffuse  *= attenuation;
-    specular *= attenuation;   
-
 	//result
-	vec3 result = ambient + diffuse + specular;
+	vec3 result = (ambient + (diffuse + specular) * intensity) * attenuation;
 
 	
 	//Because cutOff and theta are cos value, angle->0 when theta->1, so theta bigger than cutOff will be lighted
