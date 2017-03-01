@@ -139,5 +139,11 @@
     <None Include="shader-multi-light.vs">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="model_shader.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="model_shader.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

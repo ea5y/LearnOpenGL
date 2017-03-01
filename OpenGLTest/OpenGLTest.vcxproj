@@ -165,6 +165,8 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="model_shader.fs" />
+    <None Include="model_shader.vs" />
     <None Include="shader-direction-light.fs" />
     <None Include="shader-direction-light.vs" />
     <None Include="shader-multi-light.fs" />

@@ -22,6 +22,7 @@
 
 //Shader
 #include "Shader.h"
+#include "Model.h"
 #include "Camera.h"
 
 #include "Vertex.h"
@@ -42,6 +43,8 @@ string IMAGE[] = { "Resource/img/muban.jpg" , "Resource/img/mao.jpg" };
 bool KEYS[1024];
 
 bool FIRST_MOUSE = true;
+
+glm::mat4 _projection;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
@@ -306,9 +309,16 @@ void Lesson12(GLFWwindow *window, Camera *camera)
 	Clear(&VAO, &VBO, nullptr);
 }
 
+glm::mat4 CreateProjection(Camera* camera)
+{
+	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
+	return projection;
+}
+
 void SetCamera(Camera* &camera, GLFWwindow *window)
 {
 	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+	_projection = CreateProjection(camera);
 	SetMouseCallback(window, camera);
 	SetScrollCallback(window, camera);
 }
@@ -938,12 +948,6 @@ void Lesson17(GLFWwindow* window, Camera* camera)
 	Clear(&LightVAO, nullptr, nullptr);
 }
 
-glm::mat4 CreateProjection(Camera* camera)
-{
-	glm::mat4 projection = glm::perspective(camera->Zoom, (GLfloat)WIDTH / HEIGHT, 0.1f, 100.0f);
-	return projection;
-}
-
 DirLightAttribute ConfigDirLight(glm::vec3 ambient = glm::vec3(0.2f), glm::vec3 diffuse = glm::vec3(0.5f), glm::vec3 specular = glm::vec3(1.0f), glm::vec3 direction = glm::vec3(-0.2f, -0.5f, -0.3f))
 {
 	DirLightAttribute dirLight;
@@ -1069,6 +1073,93 @@ void Lesson18(GLFWwindow* window, Camera* camera)
 	Clear(&LightVAO, nullptr, nullptr);
 }
 
+void CreateObj(Model* model, Shader* shader, glm::vec3 position, glm::vec3 scale) 
+{
+	shader->Use();
+
+	glm::mat4 mod;
+	mod = glm::translate(mod, position);
+	mod = glm::scale(mod, scale);
+	TransformMatrix(shader, mod, _camera->GetViewMatrix(), _projection);
+
+	model->Draw(shader);
+}
+
+void Lesson19(GLFWwindow* window, Camera* camera)
+{
+	//Shader
+	Shader shader("model_shader.vs", "model_shader.fs");
+
+	//Light Shader
+	Shader lightShader("shader-multi-light.vs", "shader4-1.fs");
+
+	//Models
+	Model model((GLchar*)URL::GetModel_Gundam_7_OBJ().c_str());
+
+	//Projection
+	glm::mat4 projection = CreateProjection(camera);
+
+	//Draw
+	Draw(window, camera, [&]() {
+		//set deltaTime
+		SetDeltaTime();
+
+		//Use
+		shader.Use();
+		//viewPos
+		//TransformViewPos(&shader, camera);
+
+		//Transform
+		//=============
+		//matrix
+		glm::mat4 mod;
+		mod = glm::translate(mod, glm::vec3(0.0f, -4.0f, -7.0f));
+		mod = glm::scale(mod, glm::vec3(0.2f));
+		TransformMatrix(&shader, mod, camera->GetViewMatrix(), projection);
+
+		model.Draw(&shader);
+		//scene.Draw(&shader);
+	});
+	
+
+	//Clear
+
+}
+
+void Lesson20(GLFWwindow* window, Camera* camera)
+{
+	//Shader
+	Shader gameShader("model_shader.vs", "model_shader.fs");
+	Shader lightShader("shader-multi-light.vs", "shader4-1.fs");
+
+	//Models
+	Model model((GLchar*)URL::GetModel_Gundam_7_OBJ().c_str());
+
+	//Light VAO VBO
+	GLuint LightVAO, VBO;
+	CreateVAO(&LightVAO, &VBO, TEST_COORDS::vertexsPNT, 48 * 6, []() {
+		//P
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+	});
+
+	//Draw
+	Draw(window, camera, [&]() {
+		//set deltaTime
+		SetDeltaTime();
+
+		CreateLight(&lightShader, _camera, _projection, &LightVAO);
+
+		//create obj
+		CreateObj(&model, &gameShader, glm::vec3(0.0f, -4.0f, -7.0f), glm::vec3(0.2f));
+
+	});
+
+
+	//Clear
+
+}
+
 int main()
 {
 	GLFWwindow* window;
@@ -1095,7 +1186,13 @@ int main()
 	//Lesson17(window, _camera);
 
 	//18
-	Lesson18(window, _camera);
+	//Lesson18(window, _camera);
+
+	//19
+	//Lesson19(window, _camera);
+
+	//20
+	Lesson20(window, _camera);
 	return 0;
 }
 

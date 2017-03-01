@@ -2,7 +2,7 @@
 #define MODEL_H
 
 //GLEW
-#include <GL/eglew.h>
+#include <GL/glew.h>
 
 //GLFW
 #include <GLFW/glfw3.h>
@@ -16,6 +16,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+//SOIL
+#include <SOIL/SOIL.h>
 
 #include "Shader.h"
 #include "Mesh.h"
@@ -35,11 +38,14 @@ private:
 	//data
 	vector<Mesh> meshes;
 	string directory;
+	vector<Texture> textures_loaded;
 
 	void LoadModel(string path);
 	void ProcessNode(aiNode* node, const aiScene* scene);
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 	vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
+	GLint TextureFromFile(const char* path, string directory);
+
 };
 
 #endif // !MODEL_H
