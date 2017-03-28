@@ -13,137 +13,158 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Shaders">
+    <Filter Include="Header Files\Shader">
       <UniqueIdentifier>{cd039c58-4636-4c03-9382-1903641514f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shaders">
+    <Filter Include="Header Files\Camera">
+      <UniqueIdentifier>{e95aa0ed-ee4e-4bd8-867d-389aa883a545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Model">
+      <UniqueIdentifier>{19b2205d-6835-450f-89c3-4521ef088907}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Model">
+      <UniqueIdentifier>{e21d80a4-86bf-4753-8730-c9f7c662bb25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader">
+      <UniqueIdentifier>{97a1aa49-8fce-41fa-9bc3-fd7d6a2dc173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\URL">
+      <UniqueIdentifier>{ef3dbd03-65ea-422c-8361-e6c7fa2d26b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Vertex">
+      <UniqueIdentifier>{83576511-9bde-4980-b361-8bc935d22c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CustomShaders">
       <UniqueIdentifier>{ced97308-f85a-43fa-913e-162e86647227}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\URL">
-      <UniqueIdentifier>{ef3dbd03-65ea-422c-8361-e6c7fa2d26b2}</UniqueIdentifier>
+    <Filter Include="Source Files\CustomShaders\Model">
+      <UniqueIdentifier>{fe2ef424-a41a-49fe-bfed-cd792596322b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CustomShaders\Box">
+      <UniqueIdentifier>{264cffb1-c65e-4c28-be35-87e8f6a9301e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
-      <Filter>Header Files\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawStart.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Header Files\Shader</Filter>
     </ClInclude>
     <ClInclude Include="URL.h">
-      <Filter>Source Files\URL</Filter>
+      <Filter>Header Files\URL</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Model</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files\Vertex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader1.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader1.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader2.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader2.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader2-1.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader2-1.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader3.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader3.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader4.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader4.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader4-1.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader5.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader5.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shaderTest.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shaderTest.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-direction-light.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-direction-light.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-point-light.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-point-light.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-spot-light.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-spot-light.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-multi-light.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="shader-multi-light.vs">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="model_shader.vs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders</Filter>
     </None>
     <None Include="model_shader.fs">
-      <Filter>Source Files\Shaders</Filter>
+      <Filter>Source Files\CustomShaders\Model</Filter>
+    </None>
+    <None Include="model_shader.vs">
+      <Filter>Source Files\CustomShaders\Model</Filter>
+    </None>
+    <None Include="box_shader.vs">
+      <Filter>Source Files\CustomShaders\Box</Filter>
+    </None>
+    <None Include="box_shader.fs">
+      <Filter>Source Files\CustomShaders\Box</Filter>
     </None>
   </ItemGroup>
 </Project>

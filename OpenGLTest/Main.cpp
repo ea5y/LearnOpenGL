@@ -103,6 +103,12 @@ void SetScrollCallback(GLFWwindow *window, Camera *camera)
 	glfwSetScrollCallback(window, scroll_callback);
 }
 
+void SetDepthTest()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
+}
+
 void Ready(GLFWwindow* &window)
 {
 	InitGF();
@@ -111,14 +117,14 @@ void Ready(GLFWwindow* &window)
 	window = CreateGFwindowObj();
 
 	InitGE();
-	//camera = new Camera()
+
 	DefineViewPort(window);
 
 	//Event
 	SetKeyCallback(window);
-
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glEnable(GL_DEPTH_TEST);
+
+	SetDepthTest();
 }
 
 void OnKeyPress(Camera *camera)
@@ -399,7 +405,7 @@ void TransformMatrixUniform(Shader *shader, glm::mat4 matrix, MATRIX matrixType)
 glm::vec3 CreateLight(Shader* lightShader, Camera* camera, glm::mat4 projection, GLuint* LightVAO)
 {
 	//Light pos
-	glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightPos = glm::vec3(1.2f, -1.0f, -3.0f);
 	//lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
 	//lightPos.y = sin(glfwGetTime() / 2.0f) - 1.0f;
 	//Use
@@ -489,7 +495,7 @@ struct LightAttribute
 };
 
 void TransformLightAttribute(Shader* shader, LightAttribute light)
-{
+{  
 	glUniform3f(glGetUniformLocation(shader->Program, "light.ambient"), light.ambient.x, light.ambient.y, light.ambient.z);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.diffuse"), light.diffuse.x, light.diffuse.y, light.diffuse.z);
 	glUniform3f(glGetUniformLocation(shader->Program, "light.specular"), light.specular.x, light.specular.y, light.specular.z);
@@ -520,6 +526,28 @@ void TransformPointLightAttribute(Shader* shader, PointLightAttribute light, int
 	constant << "pointLights[" << index << "].constant";
 	linear << "pointLights[" << index << "].linear";
 	quadratic << "pointLights[" << index << "].quadratic";
+
+	//cout << ambient.str().c_str() << endl;
+
+	glUniform3f(glGetUniformLocation(shader->Program, ambient.str().c_str()), light.ambient.x, light.ambient.y, light.ambient.z);
+	glUniform3f(glGetUniformLocation(shader->Program, diffuse.str().c_str()), light.diffuse.x, light.diffuse.y, light.diffuse.z);
+	glUniform3f(glGetUniformLocation(shader->Program, specular.str().c_str()), light.specular.x, light.specular.y, light.specular.z);
+	glUniform3f(glGetUniformLocation(shader->Program, position.str().c_str()), light.position.x, light.position.y, light.position.z);
+	glUniform1f(glGetUniformLocation(shader->Program, constant.str().c_str()), light.constant);
+	glUniform1f(glGetUniformLocation(shader->Program, linear.str().c_str()), light.linear);
+	glUniform1f(glGetUniformLocation(shader->Program, quadratic.str().c_str()), light.quadratic);
+}
+
+void TransformPointLightAttribute(Shader* shader, PointLightAttribute light)
+{
+	stringstream ambient, diffuse, specular, position, constant, linear, quadratic;
+	ambient << "pointLights" << ".ambient";
+	diffuse << "pointLights" << ".diffuse";
+	specular << "pointLights" << ".specular";
+	position << "pointLights" << ".position";
+	constant << "pointLights" << ".constant";
+	linear << "pointLights" << ".linear";
+	quadratic << "pointLights" << ".quadratic";
 
 	//cout << ambient.str().c_str() << endl;
 
@@ -1073,7 +1101,8 @@ void Lesson18(GLFWwindow* window, Camera* camera)
 	Clear(&LightVAO, nullptr, nullptr);
 }
 
-void CreateObj(Model* model, Shader* shader, glm::vec3 position, glm::vec3 scale) 
+template<typename Func>
+void CreateObj(Model* model, Shader* shader, glm::vec3 position, glm::vec3 scale, Func func) 
 {
 	shader->Use();
 
@@ -1081,7 +1110,8 @@ void CreateObj(Model* model, Shader* shader, glm::vec3 position, glm::vec3 scale
 	mod = glm::translate(mod, position);
 	mod = glm::scale(mod, scale);
 	TransformMatrix(shader, mod, _camera->GetViewMatrix(), _projection);
-
+	func();
+	//TransformDirLightAttribute(&gameShader, dirLight);
 	model->Draw(shader);
 }
 
@@ -1143,21 +1173,36 @@ void Lesson20(GLFWwindow* window, Camera* camera)
 		glEnableVertexAttribArray(0);
 	});
 
+	//Config light attribute
+	//PointLightAttribute pointLight = ConfigPointLight(glm::vec3(1.2f, 1.0f, 2.0f));
+
 	//Draw
 	Draw(window, camera, [&]() {
 		//set deltaTime
 		SetDeltaTime();
 
-		CreateLight(&lightShader, _camera, _projection, &LightVAO);
+		glm::vec3 lightPos = CreateLight(&lightShader, _camera, _projection, &LightVAO);
+
+		PointLightAttribute pointLight = ConfigPointLight(lightPos);
+
+		SpotLightAttribute spotLight = ConfigSpotLight(camera->Position, camera->Front);
 
 		//create obj
-		CreateObj(&model, &gameShader, glm::vec3(0.0f, -4.0f, -7.0f), glm::vec3(0.2f));
+		CreateObj(&model, &gameShader, glm::vec3(0.0f, -4.0f, -5.0f), glm::vec3(0.2f), [&]() {
+			//TransformPointLightAttribute(&gameShader, pointLight);
+			TransformSpotLightAttribute(&gameShader, spotLight);
+		});
 
 	});
 
 
 	//Clear
+	Clear(&LightVAO, nullptr, nullptr);
+}
 
+void Lesson21(GLFWwindow* window, Camera* camera)
+{
+	
 }
 
 int main()
