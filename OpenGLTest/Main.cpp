@@ -1202,7 +1202,14 @@ void Lesson20(GLFWwindow* window, Camera* camera)
 
 void Lesson21(GLFWwindow* window, Camera* camera)
 {
-	
+    //shader        	
+    Shader boxShader("box_shader.vs", "box_shader.fs");
+    Shader lightShader("box_shader.vs", "light_shader.fs");
+    //vao vbo
+    GLuint BoxVAO, BoxVBO;
+    //light vao vbo
+    //draw
+    //clear
 }
 
 int main()

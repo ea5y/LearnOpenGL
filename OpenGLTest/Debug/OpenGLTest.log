@@ -1,13 +1,15 @@
 ﻿  Main.cpp
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(261): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(584): warning C4390: ';': empty controlled statement found; is this the intent?
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(681): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1251): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1252): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1256): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1257): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1259): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1260): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\work\project\opengl\learnopengl\opengltest\main.cpp(1271): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(267): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(590): warning C4390: ';': empty controlled statement found; is this the intent?
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(687): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1209): warning C4101: 'BoxVBO': unreferenced local variable
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1209): warning C4101: 'BoxVAO': unreferenced local variable
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1269): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1270): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1274): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1275): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1277): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1278): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+c:\work\project\opengl\learnopengl\opengltest\main.cpp(1289): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
   OpenGLTest.vcxproj -> C:\Work\Project\OpenGL\LearnOpenGL\Debug\OpenGLTest.exe
   OpenGLTest.vcxproj -> C:\Work\Project\OpenGL\LearnOpenGL\Debug\OpenGLTest.pdb (Full PDB)
